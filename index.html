@@ -85,6 +85,43 @@
   .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--acc);flex:0 0 10px}
   .dot.done{background:var(--acc)} .dot.now{border-color:var(--warn);background:var(--warn)} .dot.plan{border-color:var(--dim)}
   mark{background:#5c4a12;color:#fff;padding:0 2px;border-radius:2px}
+
+  /* ---------- drive ---------- */
+  .dhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:36px 0 14px}
+  .dhead h2{margin:0}
+  .live{font:12px var(--mono);color:var(--muted);display:flex;gap:8px;align-items:center}
+  .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 0 #2fd08c88;animation:pl 2s infinite}
+  .live.err .pulse{background:#e5534b;animation:none}
+  @keyframes pl{0%{box-shadow:0 0 0 0 #2fd08c88}70%{box-shadow:0 0 0 8px #2fd08c00}100%{box-shadow:0 0 0 0 #2fd08c00}}
+  .sbtn{background:none;border:1px solid var(--line2);border-radius:7px;color:var(--ink);font:500 13px var(--mono);padding:7px 12px;cursor:pointer}
+  .sbtn:hover{border-color:var(--acc);color:#fff}
+  .sbtn.pri{background:var(--accbg);border-color:var(--accbg);color:#e6fff3}
+  .crumbs{font:13px var(--mono);color:var(--muted);margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px}
+  .crumbs a{color:var(--acc);cursor:pointer;text-decoration:none}.crumbs a:hover{text-decoration:underline}
+  .f{display:grid;grid-template-columns:28px 1fr 90px 110px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .f:last-child{border-bottom:0}
+  .f:hover .nm{color:#fff}
+  .f .ty{font:700 10px var(--mono);color:var(--bg);background:var(--muted);border-radius:4px;text-align:center;padding:3px 0}
+  .f .nm{color:var(--ink);font-size:15px;word-break:break-word}
+  .f .nm small{display:block;color:var(--dim);font:12px var(--mono)}
+  .f .sz,.f .dt{font:12px var(--mono);color:var(--muted);text-align:right}
+  .f.dir .ty{background:var(--accbg);color:#d9ffef}
+  .ty.pdf{background:#d9534f!important;color:#fff!important}.ty.doc{background:#4c8dff!important;color:#fff!important}
+  .ty.xls{background:#2e9b57!important;color:#fff!important}.ty.ppt{background:#e07b39!important;color:#fff!important}
+  .ty.vid{background:#9b59b6!important;color:#fff!important}.ty.img{background:#c9a227!important;color:#111!important}
+  .empty{color:var(--muted);font:14px var(--mono);padding:16px 0}
+  .field{display:block;margin:0 0 14px}
+  .field span{display:block;font:12px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+  .field input{width:100%;background:#0b1215;border:1px solid var(--line2);border-radius:8px;color:var(--ink);font:14px var(--mono);padding:11px 12px;outline:none}
+  .field input:focus{border-color:var(--acc)}
+  ol.steps{margin:0;padding-left:22px}ol.steps li{margin:8px 0}
+  code{font-family:var(--mono);font-size:.9em;background:#0b1215;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink)}
+  #viewer{position:fixed;inset:0;background:#000c;z-index:50;display:none;flex-direction:column}
+  #viewer.on{display:flex}
+  #viewer .vb{display:flex;gap:10px;align-items:center;padding:12px 18px;background:var(--side);border-bottom:1px solid var(--line)}
+  #viewer .vb b{color:#fff;flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #viewer iframe{flex:1;border:0;background:#fff;width:100%}
+  @media(max-width:900px){.f{grid-template-columns:28px 1fr}.f .sz,.f .dt{display:none}}
   .menu-t{display:none}
   @media(max-width:900px){
     body{display:block} aside{position:fixed;left:0;top:0;z-index:20;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 40px #000}
@@ -109,6 +146,7 @@
     <div class="uni">Magister Teknik Elektro<br>Institut Teknologi<br>Sepuluh Nopember</div>
   </div>
 </aside>
+<div id="viewer"><div class="vb"><b id="vtitle"></b><a class="sbtn" id="vopen" target="_blank" rel="noopener">Buka di Drive ↗</a><button class="sbtn" id="vclose">Tutup ✕</button></div><iframe id="vframe" title="Pratinjau file" allow="autoplay"></iframe></div>
 <main id="main"><div class="wrap">
   <button class="btn menu-t" id="mt">☰ Menu</button>
   <div id="view"></div>
@@ -346,6 +384,7 @@ const row=(k,v,cls="",extra="")=>`<div class="r ${extra}"><span class="k">${k}</
 /* ---------- sidebar ---------- */
 const PAGES=[
   {grp:"Ikhtisar",items:[{id:"ringkasan",ic:"◉",t:"Ringkasan studi"},{id:"tesis",ic:"▶",t:"Jalur tesis"},{id:"benang",ic:"∞",t:"Benang merah materi"}]},
+  {grp:"Google Drive",items:[{id:"drive",ic:"▤",t:"File materi kuliah"},{id:"drive-set",ic:"⚙",t:"Pengaturan Drive"}]},
   ...DATA.semesters.map(s=>({grp:s.name+(s.status==="run"?" · berjalan":""),items:C.filter(c=>c.sem===s.n).map(c=>({id:"c-"+c.id,ic:c.status==="ok"?"✓":"○",t:c.name,c}))})),
   {grp:"Pendukung",items:[{id:"pendukung",ic:"✎",t:"Pelatihan & referensi"}]}
 ];
@@ -390,7 +429,8 @@ function vCourse(c){
    <div>${c.tasks.length?`<h2>Tugas &amp; evaluasi</h2><div class="card">${c.tasks.map((x,i)=>row(hl(x),String(i+1).padStart(2,"0"))).join("")}</div>`:""}</div>
    <div>${c.refs.length?`<h2>Bahan rujukan utama</h2><div class="card">${c.refs.map((x,i)=>row(hl(x),"R"+(i+1))).join("")}</div>`:""}</div>
   </div>
-  <h2>Lokasi file</h2><div class="path">${esc(ROOT+c.folder)}</div>`;
+  <h2>Lokasi file</h2><div class="path">${esc(ROOT+c.folder)}</div>
+  ${c.folder.startsWith("(")?"":`<div class="dhead"><h2>File di Google Drive</h2><div class="row" style="display:flex;gap:10px;align-items:center"><span class="live" id="dlive"><span class="pulse"></span><span id="dstat">memuat…</span></span><button class="sbtn" data-drefresh>↻ Muat ulang</button></div></div><div id="dbox"></div>`}`;
 }
 function vTesis(){
   return `<div class="eyebrow">Jalur tesis</div><h1>Hosting Capacity Jaringan 20 kV dengan EV dan PLTS Atap</h1><hr class="rule">
@@ -408,11 +448,14 @@ function vPendukung(){
   <p class="lead">Kegiatan belajar di luar mata kuliah resmi yang menopang tesis dan pekerjaan.</p>`+
   DATA.extras.map(x=>`<h2>${esc(x.name)}</h2><div class="card">${x.items.map((i,n)=>row(esc(i),String(n+1).padStart(2,"0"))).join("")}</div><p class="note"></p><div class="path">${esc(ROOT+x.folder)}</div>`).join("");
 }
+let rendered=null,lastCJ=null;
 function render(){
   const id=location.hash.slice(1)||"ringkasan";let h;
   if(id.startsWith("c-")){const c=C.find(x=>"c-"+x.id===id);h=c?vCourse(c):vRingkasan()}
-  else h=({tesis:vTesis,benang:vBenang,pendukung:vPendukung}[id]||vRingkasan)();
+  else h=({tesis:vTesis,benang:vBenang,pendukung:vPendukung,drive:vDrive,"drive-set":vDriveSet}[id]||vRingkasan)();
   document.getElementById("view").innerHTML=h;renderMenu();const a=document.querySelector(".item.active");if(a)a.scrollIntoView({block:"nearest"});
+  if(id.startsWith("c-")){const c=C.find(x=>"c-"+x.id===id);if(c&&!c.folder.startsWith("(")){if(rendered===id&&lastCJ)renderCourseDrive(lastCJ);else{lastCJ=null;loadCourseDrive(c)}}}
+  rendered=id;
 }
 document.getElementById("view").addEventListener("click",e=>{
   const t=e.target.closest("[data-t]");if(t){const k=t.dataset.t;done[k]?delete done[k]:done[k]=1;save();render();return}
@@ -422,6 +465,149 @@ window.addEventListener("hashchange",()=>{render();document.getElementById("main
 document.getElementById("q").addEventListener("input",e=>{Q=e.target.value.trim();render()});
 let armed=false;document.getElementById("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!armed){armed=true;b.textContent="Klik lagi untuk konfirmasi";setTimeout(()=>{armed=false;b.innerHTML="↺ &nbsp;Atur ulang centang"},3000);return}armed=false;done={};save();b.innerHTML="↺ &nbsp;Atur ulang centang";render()});
 document.getElementById("mt").addEventListener("click",()=>document.getElementById("side").classList.toggle("open"));
+
+/* ================= GOOGLE DRIVE (langsung) ================= */
+const DRIVE_URL_DEFAULT = "";   // boleh diisi URL Web App Apps Script (/exec); kunci tetap dimasukkan di perangkat
+const DKEY="pembelajaran-drive-cfg";
+function dcfg(){let c={};try{c=JSON.parse(localStorage.getItem(DKEY)||"{}")}catch(e){}return {url:c.url||DRIVE_URL_DEFAULT,key:c.key||""}}
+function dsave(c){try{localStorage.setItem(DKEY,JSON.stringify(c))}catch(e){}}
+const dready=()=>{const c=dcfg();return !!(c.url&&c.key)};
+async function dget(params){
+  const c=dcfg();const u=new URL(c.url);u.searchParams.set("key",c.key);u.searchParams.set("_",Date.now());
+  Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
+  const r=await fetch(u.toString(),{cache:"no-store",redirect:"follow"});
+  const j=await r.json();if(!j.ok)throw new Error(j.error||"Gagal membaca Drive");return j;
+}
+const fmtSize=b=>!b?"–":b<1024?b+" B":b<1048576?(b/1024).toFixed(0)+" KB":b<1073741824?(b/1048576).toFixed(1)+" MB":(b/1073741824).toFixed(2)+" GB";
+const fmtDate=d=>{try{return new Date(d).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"})}catch(e){return ""}};
+const fmtTime=d=>new Date(d).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+function ftype(f){const m=f.mime||"",n=(f.name||"").toLowerCase();
+  if(m.includes("pdf")||n.endsWith(".pdf"))return["PDF","pdf"];
+  if(m.includes("document")||m.includes("word")||/\.docx?$/.test(n))return["DOC","doc"];
+  if(m.includes("sheet")||m.includes("excel")||/\.(xlsx?|csv)$/.test(n))return["XLS","xls"];
+  if(m.includes("presentation")||m.includes("powerpoint")||/\.pptx?$/.test(n))return["PPT","ppt"];
+  if(m.startsWith("video/"))return["VID","vid"];if(m.startsWith("image/"))return["IMG","img"];
+  const e=n.includes(".")?n.split(".").pop().slice(0,4).toUpperCase():"FILE";return[e,""]}
+function previewUrl(f){const m=f.mime||"";
+  if(m==="application/vnd.google-apps.document")return`https://docs.google.com/document/d/${f.id}/preview`;
+  if(m==="application/vnd.google-apps.spreadsheet")return`https://docs.google.com/spreadsheets/d/${f.id}/preview`;
+  if(m==="application/vnd.google-apps.presentation")return`https://docs.google.com/presentation/d/${f.id}/preview`;
+  return`https://drive.google.com/file/d/${f.id}/preview`}
+let FILES={};
+function fileRows(j,opts={}){
+  FILES={};let h="";
+  (j.folders||[]).forEach(d=>{h+=`<div class="f dir" data-dir="${d.id}"><span class="ty">DIR</span><span class="nm">${esc(d.name)}</span><span class="sz">folder</span><span class="dt">${fmtDate(d.modified)}</span></div>`});
+  (j.files||[]).forEach(f=>{FILES[f.id]=f;const t=ftype(f);
+    h+=`<div class="f" data-file="${f.id}"><span class="ty ${t[1]}">${esc(t[0])}</span><span class="nm">${hl(f.name)}${f.folder!==undefined?`<small>${esc(f.folder||"MATERI KULIAH")}</small>`:""}</span><span class="sz">${fmtSize(f.size)}</span><span class="dt">${fmtDate(f.modified)}</span></div>`});
+  return h||`<div class="empty">Folder ini kosong.</div>`;
+}
+function setLive(ok,msg){const l=document.getElementById("dlive"),s=document.getElementById("dstat");if(!l)return;l.classList.toggle("err",!ok);s.textContent=msg}
+function needSetup(){return `<div class="card"><div class="empty">Drive belum terhubung. Buka <a href="#drive-set" style="color:var(--acc)">Pengaturan Drive</a> untuk memasukkan URL Apps Script dan kunci akses.</div></div>`}
+function errBox(e){return `<div class="card"><div class="empty" style="color:#f08a84">Gagal membaca Drive: ${esc(e.message||e)}<br><span style="color:var(--muted)">Periksa URL/kunci di Pengaturan Drive, atau pastikan Web App di-deploy dengan akses "Anyone".</span></div></div>`}
+
+/* --- isi Drive pada halaman mata kuliah --- */
+let dCourse=null;
+async function loadCourseDrive(c,silent){
+  const box=document.getElementById("dbox");if(!box)return;
+  if(!dready()){box.innerHTML=needSetup();setLive(false,"belum terhubung");return}
+  dCourse={path:c.folder.replace(/\\/g,"/"),id:null};
+  if(!silent)box.innerHTML=`<div class="card"><div class="empty">Membaca folder dari Google Drive…</div></div>`;
+  try{const j=await dget({path:dCourse.path});renderCourseDrive(j)}
+  catch(e){box.innerHTML=errBox(e);setLive(false,"gagal terhubung")}
+}
+async function openCourseDir(id){const box=document.getElementById("dbox");dCourse.id=id;
+  try{const j=await dget({id});renderCourseDrive(j)}catch(e){box.innerHTML=errBox(e)}}
+function renderCourseDrive(j){
+  const box=document.getElementById("dbox");if(!box)return;lastCJ=j;
+  const cr=(j.crumbs||[]).slice(1);
+  box.innerHTML=`<div class="crumbs">${cr.map((x,i)=>i<cr.length-1?`<a data-cdir="${x.id}">${esc(x.name)}</a> /`:`<span style="color:var(--ink)">${esc(x.name)}</span>`).join(" ")}</div><div class="card">${fileRows(j)}</div>`;
+  setLive(true,"tersinkron "+fmtTime(j.time)+` · ${(j.files||[]).length} file`);
+}
+
+/* --- halaman penjelajah Drive --- */
+let dCur=null;
+function vDrive(){
+  setTimeout(()=>loadDrive(dCur),0);
+  return `<div class="eyebrow">Google Drive · langsung</div><h1>File Materi Kuliah</h1><hr class="rule">
+  <p class="lead">Isi folder <b style="color:#fff">MATERI KULIAH</b> di Google Drive Anda, dibaca langsung setiap kali dibuka dan diperbarui otomatis tiap 60 detik. Klik file untuk membacanya di dalam dashboard.</p>
+  <div class="dhead"><h2 id="dtitle">MATERI KULIAH</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+   <span class="live" id="dlive"><span class="pulse"></span><span id="dstat">memuat…</span></span>
+   <input id="dq" placeholder="cari nama file di Drive…" style="background:var(--card);border:1px solid var(--line2);border-radius:7px;color:var(--ink);font:13px var(--mono);padding:7px 10px;width:230px">
+   <button class="sbtn" data-drefresh>↻ Muat ulang</button></div></div>
+  <div id="dcrumbs" class="crumbs"></div><div id="dlist"></div>`;
+}
+async function loadDrive(id,silent){
+  const list=document.getElementById("dlist");if(!list)return;
+  if(!dready()){list.innerHTML=needSetup();setLive(false,"belum terhubung");return}
+  dCur=id||null;if(!silent)list.innerHTML=`<div class="card"><div class="empty">Membaca Google Drive…</div></div>`;
+  try{const j=await dget(id?{id}:{});
+    document.getElementById("dcrumbs").innerHTML=(j.crumbs||[]).map((x,i,a)=>i<a.length-1?`<a data-ddir="${x.id}">${esc(x.name)}</a> /`:`<span style="color:var(--ink)">${esc(x.name)}</span>`).join(" ");
+    document.getElementById("dtitle").textContent=j.folder.name;
+    list.innerHTML=`<div class="card">${fileRows(j)}</div>`;
+    setLive(true,"tersinkron "+fmtTime(j.time)+` · ${(j.folders||[]).length} folder, ${(j.files||[]).length} file`);
+  }catch(e){list.innerHTML=errBox(e);setLive(false,"gagal terhubung")}
+}
+let dqTimer;
+async function searchDrive(q){
+  const list=document.getElementById("dlist");if(!q){loadDrive(dCur);return}
+  list.innerHTML=`<div class="card"><div class="empty">Mencari "${esc(q)}" di Drive…</div></div>`;
+  try{const j=await dget({q});document.getElementById("dcrumbs").innerHTML=`<span>Hasil pencarian: ${(j.files||[]).length} file</span>`;
+    const keep=Q;Q=q;list.innerHTML=`<div class="card">${fileRows(j)}</div>`;Q=keep;setLive(true,"tersinkron "+fmtTime(j.time))}
+  catch(e){list.innerHTML=errBox(e)}
+}
+
+/* --- pengaturan --- */
+function vDriveSet(){
+  const c=dcfg();
+  return `<div class="eyebrow">Google Drive · pengaturan</div><h1>Hubungkan Dashboard ke Drive</h1><hr class="rule">
+  <p class="lead">Folder MATERI KULIAH tetap privat. Dashboard membacanya melalui Apps Script yang berjalan di akun Google Anda dan hanya menjawab permintaan yang membawa kunci akses. URL dan kunci disimpan di browser ini saja, tidak masuk ke repo publik.</p>
+  <h2>Koneksi</h2><div class="card" style="padding:20px">
+   <label class="field"><span>URL Web App Apps Script (berakhiran /exec)</span><input id="cfurl" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec"></label>
+   <label class="field"><span>Kunci akses</span><input id="cfkey" value="${esc(c.key)}" placeholder="kunci dari Execution log fungsi setup"></label>
+   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="sbtn pri" id="cfsave">Simpan &amp; uji koneksi</button><button class="sbtn" id="cfclear">Hapus dari browser ini</button><span class="live" id="dlive"><span class="pulse"></span><span id="dstat">${dready()?"tersimpan":"belum diatur"}</span></span></div>
+  </div>
+  <h2>Pemasangan Apps Script (sekali saja, ±5 menit)</h2><div class="card" style="padding:20px"><ol class="steps">
+   <li>Buka <a href="https://script.google.com" target="_blank" rel="noopener" style="color:var(--acc)">script.google.com</a> dengan akun pemilik Drive, lalu klik <b>New project</b>.</li>
+   <li>Hapus isi editor, tempel seluruh isi file <code>apps-script/Code.gs</code> dari repo PEMBELAJARAN-, lalu simpan.</li>
+   <li>Pilih fungsi <code>setup</code> → <b>Run</b> → izinkan akses Google Drive. Salin <b>kunci akses</b> yang muncul di Execution log.</li>
+   <li>Klik <b>Deploy → New deployment</b> → tipe <b>Web app</b>. Execute as: <b>Me</b>. Who has access: <b>Anyone</b>. Klik Deploy, lalu salin URL Web app.</li>
+   <li>Tempel URL dan kunci di kotak di atas, lalu klik <b>Simpan &amp; uji koneksi</b>.</li></ol>
+   <p class="note">Bila kode skrip diubah nanti, buat ulang lewat <b>Deploy → Manage deployments → Edit → New version</b> agar URL tetap sama. Perubahan isi Drive tidak perlu deploy ulang — langsung terbaca.</p></div>`;
+}
+
+/* --- penampil file --- */
+function openFile(id){const f=FILES[id];if(!f)return;
+  document.getElementById("vtitle").textContent=f.name;document.getElementById("vopen").href=f.url||`https://drive.google.com/file/d/${f.id}/view`;
+  document.getElementById("vframe").src=previewUrl(f);document.getElementById("viewer").classList.add("on")}
+document.getElementById("vclose").addEventListener("click",()=>{document.getElementById("viewer").classList.remove("on");document.getElementById("vframe").src="about:blank"});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("vclose").click()});
+
+/* --- event --- */
+document.getElementById("view").addEventListener("click",async e=>{
+  const f=e.target.closest("[data-file]");if(f){openFile(f.dataset.file);return}
+  const d=e.target.closest("[data-dir]");if(d){(location.hash==="#drive")?(document.getElementById("dq").value="",loadDrive(d.dataset.dir)):openCourseDir(d.dataset.dir);return}
+  const dd=e.target.closest("[data-ddir]");if(dd){loadDrive(dd.dataset.ddir);return}
+  const cd=e.target.closest("[data-cdir]");if(cd){openCourseDir(cd.dataset.cdir);return}
+  if(e.target.closest("[data-drefresh]")){driveTick(false);return}
+  if(e.target.id==="cfsave"){const url=document.getElementById("cfurl").value.trim(),key=document.getElementById("cfkey").value.trim();
+    if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){setLive(false,"URL harus dari script.google.com");return}
+    dsave({url,key});setLive(true,"menguji…");
+    try{const j=await dget({});setLive(true,`terhubung · ${j.folder.name} · ${(j.folders||[]).length} folder`)}catch(err){setLive(false,"gagal: "+err.message)}}
+  if(e.target.id==="cfclear"){try{localStorage.removeItem(DKEY)}catch(_){}render()}
+});
+document.getElementById("view").addEventListener("input",e=>{if(e.target.id==="dq"){clearTimeout(dqTimer);const v=e.target.value.trim();dqTimer=setTimeout(()=>searchDrive(v),500)}});
+
+/* --- pembaruan otomatis tiap 60 detik --- */
+function driveTick(silent=true){
+  if(document.hidden||!dready())return;
+  const id=location.hash.slice(1);
+  if(id==="drive"){const q=(document.getElementById("dq")||{}).value;if(!q)loadDrive(dCur,silent)}
+  else if(id.startsWith("c-")&&document.getElementById("dbox")){
+    if(dCourse&&dCourse.id)openCourseDir(dCourse.id);else{const c=C.find(x=>"c-"+x.id===id);if(c)loadCourseDrive(c,silent)}}
+}
+setInterval(()=>driveTick(true),60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)driveTick(true)});
+
 render();
 </script>
 </body>
